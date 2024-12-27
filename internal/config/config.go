@@ -9,6 +9,11 @@ import (
 type Config struct {
 	DBUrl           string `json:"db_url"`
 	CurrentUserName string `json:"current_user_name"`
+	filename        string
+}
+
+func (c *Config) GetFilename() string {
+	return c.filename
 }
 
 func (c *Config) SetUser(jsonFilenameFull, username string) error {
@@ -64,7 +69,9 @@ func Read(jsonFilenameFull string) (Config, error) {
 	defer file.Close()
 
 	// Decode the json file from the given input.
+	// Set the config path
 	newConfig := Config{}
+	newConfig.filename = jsonFilenameFull
 	err = json.NewDecoder(file).Decode(&newConfig)
 	if err != nil {
 		return Config{}, fmt.Errorf("unable to decode JSON file: %w", err)
