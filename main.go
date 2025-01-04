@@ -52,7 +52,13 @@ func main() {
 
 	handlerMap := make(map[string]func(*commands.State, commands.Command) error)
 	cmds := commands.Commands{Handlers: handlerMap}
-	cmds.Register(cmd.Name, commands.HandlerLogin)
+
+	switch cmd.Name {
+	case "login":
+		cmds.Register(cmd.Name, commands.HandlerLogin)
+	case "register":
+		cmds.Register(cmd.Name, commands.HandlerRegister)
+	}
 
 	if err := cmds.Run(state, cmd); err != nil {
 		fmt.Println(err)
