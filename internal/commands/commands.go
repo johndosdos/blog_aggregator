@@ -104,3 +104,13 @@ func HandlerRegister(s *State, cmd Command) error {
 
 	return nil
 }
+
+func HandlerReset(s *State, cmd Command) error {
+	err := s.DB.DeleteUsers(context.Background())
+	if err != nil {
+		return fmt.Errorf("failed to delete users: %w", err)
+	}
+
+	fmt.Println("users deletion success!")
+	return nil
+}
