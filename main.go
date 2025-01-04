@@ -1,11 +1,15 @@
 package main
 
 import (
+	"database/sql"
 	"fmt"
 	"os"
 
 	"github.com/johndosdos/blog_aggregator/internal/commands"
 	"github.com/johndosdos/blog_aggregator/internal/config"
+	"github.com/johndosdos/blog_aggregator/internal/database"
+
+	_ "github.com/lib/pq"
 )
 
 func main() {
@@ -14,12 +18,12 @@ func main() {
 		os.Exit(1)
 	}
 
-	// Config.Read(Src string)
-	newConfig, err := config.Read(".gatorconfig.json")
+	db, err := sql.Open("postgres", newConfig.DBUrl)
 	if err != nil {
 		fmt.Println("%w", err)
 		os.Exit(1)
 	}
+	dbQueries := database.New(db)
 
 	args := os.Args
 	cmd := commands.Command{
@@ -37,7 +41,7 @@ func main() {
 	   		Args: []string{"jane"},
 	   	} */
 
-	state := &commands.State{Config: &newConfig}
+	state := &commands.State{Config: &newConfig, DB: dbQueries}
 
 	handlerMap := make(map[string]func(*commands.State, commands.Command) error)
 	cmds := commands.Commands{Handlers: handlerMap}
