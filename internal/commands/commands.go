@@ -45,12 +45,25 @@ func HandlerLogin(s *State, cmd Command) error {
 		return fmt.Errorf("invalid username provided: %s", s.Config.CurrentUserName)
 	}
 
+	_, err := s.DB.GetUser(context.Background(), username)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			return fmt.Errorf("user not found, login failed. %w", err)
+		}
+		return err
+	}
+
 	// set current user to config
 	if err := s.Config.SetUser(s.Config.GetFilename(), username); err != nil {
 		return err
 	}
 
 	// print success message
+	fmt.Printf("user has been logged in: %s.\n", s.Config.CurrentUserName)
+
+	return nil
+}
+
 	fmt.Printf("user has been set: %s.\n", s.Config.CurrentUserName)
 
 	return nil
