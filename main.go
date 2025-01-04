@@ -13,8 +13,10 @@ import (
 )
 
 func main() {
-	if len(os.Args) < 2 {
-		fmt.Println("missing argument. e.g. <command> [arguments]")
+	// Config.Read(Src string)
+	newConfig, err := config.Read(".gatorconfig.json")
+	if err != nil {
+		fmt.Println("%w", err)
 		os.Exit(1)
 	}
 
@@ -25,7 +27,12 @@ func main() {
 	}
 	dbQueries := database.New(db)
 
+	if len(os.Args) < 2 {
+		fmt.Println("missing argument. e.g. <command> [arguments]")
+		os.Exit(1)
+	}
 	args := os.Args
+
 	cmd := commands.Command{
 		// when using os.Args, we need to start at index 1 because index 0 is the program name
 		// index 1 = command name, index 2 = username
@@ -62,5 +69,4 @@ func main() {
 	   	if err != nil {
 	   		fmt.Errorf("%w", err)
 	   	} */
-
 }
