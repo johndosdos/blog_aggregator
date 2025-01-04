@@ -70,6 +70,36 @@ func HandlerLogin(s *State, cmd Command) error {
 	return nil
 }
 
+func HandlerRegister(s *State, cmd Command) error {
+	if len(cmd.Args) == 0 {
+		return fmt.Errorf("username is required for login.")
+	}
+
+	username := cmd.Args[0]
+
+	// check if user exists in the database before creating a new entry
+	_, err := s.DB.GetUser(context.Background(), username)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			_, err := s.DB.CreateUser(
+				context.Background(),
+				database.CreateUserParams{
+					ID:        uuid.New(),
+					CreatedAt: time.Now(),
+					UpdatedAt: time.Now(),
+					Name:      username,
+				})
+			if err != nil {
+				return fmt.Errorf("failed to create user: %w", err)
+			}
+		}
+	} else {
+		return fmt.Errorf("user already exist.")
+	}
+
+	if err := s.Config.SetUser(s.Config.GetFilename(), username); err != nil {
+		return err
+	}
 	fmt.Printf("user has been set: %s.\n", s.Config.CurrentUserName)
 
 	return nil
