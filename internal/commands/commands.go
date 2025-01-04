@@ -14,6 +14,7 @@ import (
 type State struct {
 	// store the state for each user
 	Config *config.Config
+	DB     *database.Queries
 }
 
 type Command struct {
