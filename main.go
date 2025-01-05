@@ -60,6 +60,8 @@ func main() {
 		cmds.Register(cmd.Name, commands.HandlerRegister)
 	case "reset":
 		cmds.Register(cmd.Name, commands.HandlerReset)
+	case "users":
+		cmds.Register(cmd.Name, commands.HandlerUsers)
 	}
 
 	if err := cmds.Run(state, cmd); err != nil {

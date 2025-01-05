@@ -114,3 +114,23 @@ func HandlerReset(s *State, cmd Command) error {
 	fmt.Println("users deletion success!")
 	return nil
 }
+
+func HandlerUsers(s *State, cmd Command) error {
+	users, err := s.DB.GetUsers(context.Background())
+	if err != nil {
+		return err
+	}
+	if len(users) == 0 {
+		return fmt.Errorf("users database is empty!")
+	}
+
+	for _, v := range users {
+		if v.Name == s.Config.CurrentUserName {
+			fmt.Printf("* %s (current)\n", v.Name)
+		} else {
+			fmt.Printf("* %s\n", v.Name)
+		}
+	}
+
+	return nil
+}
