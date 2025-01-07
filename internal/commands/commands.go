@@ -9,6 +9,7 @@ import (
 	"github.com/google/uuid"
 	"github.com/johndosdos/blog_aggregator/internal/config"
 	"github.com/johndosdos/blog_aggregator/internal/database"
+	"github.com/johndosdos/blog_aggregator/internal/rss"
 )
 
 type State struct {
@@ -131,6 +132,22 @@ func HandlerUsers(s *State, cmd Command) error {
 			fmt.Printf("* %s\n", v.Name)
 		}
 	}
+
+	return nil
+}
+
+func HandlerAgg(s *State, cmd Command) error {
+	if len(cmd.Args) == 0 {
+		return fmt.Errorf("missing feed URL.")
+	}
+	feedURL := cmd.Args[0]
+
+	feed, err := rss.FetchFeed(context.Background(), feedURL)
+	if err != nil {
+		return fmt.Errorf("failed to fetch feed: %w", err)
+	}
+
+	fmt.Println(feed)
 
 	return nil
 }
