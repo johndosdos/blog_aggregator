@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/xml"
 	"fmt"
+	"html"
 	"net/http"
 	"time"
 )
@@ -55,6 +56,16 @@ func FetchFeed(ctx context.Context, feedURL string) (*RSSFeed, error) {
 	feed := &RSSFeed{}
 	if err := xml.NewDecoder(res.Body).Decode(feed); err != nil {
 		return &RSSFeed{}, fmt.Errorf("failed to decode feed: %w", err)
+	}
+
+	feed.Channel.Link = html.UnescapeString(feed.Channel.Link)
+	feed.Channel.Title = html.UnescapeString(feed.Channel.Title)
+	feed.Channel.Description = html.UnescapeString(feed.Channel.Description)
+	for i, field := range feed.Channel.Item {
+		feed.Channel.Item[i].Description = html.UnescapeString(field.Description)
+		feed.Channel.Item[i].Link = html.UnescapeString(field.Link)
+		feed.Channel.Item[i].PubDate = html.UnescapeString(field.PubDate)
+		feed.Channel.Item[i].Title = html.UnescapeString(field.Title)
 	}
 
 	return feed, nil
