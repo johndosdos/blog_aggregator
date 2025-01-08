@@ -5,6 +5,7 @@ import (
 	"encoding/xml"
 	"fmt"
 	"net/http"
+	"time"
 )
 
 type RSSFeed struct {
@@ -41,7 +42,9 @@ func FetchFeed(ctx context.Context, feedURL string) (*RSSFeed, error) {
 	req.Header.Set("User-Agent", "gator")
 
 	// send/process the request
-	client := &http.Client{}
+	client := &http.Client{
+		Timeout: 10 * time.Second,
+	}
 	res, err := client.Do(req)
 	if err != nil {
 		return &RSSFeed{}, err
