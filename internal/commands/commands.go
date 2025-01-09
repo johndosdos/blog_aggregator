@@ -202,3 +202,18 @@ func HandlerAddFeed(s *State, cmd Command) error {
 
 	return nil
 }
+
+func HandlerFeeds(s *State, cmd Command) error {
+	// this function does not accept any arguments
+
+	dbFeeds, err := s.DB.GetFeeds(context.Background())
+	if err != nil {
+		return fmt.Errorf("failed to get feeds: %w", err)
+	}
+
+	for _, record := range dbFeeds {
+		fmt.Printf("{Name: %v, URL: %v, User: %v}\n", record.Name, record.Url, record.Username)
+	}
+
+	return nil
+}
