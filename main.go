@@ -64,6 +64,8 @@ func main() {
 		cmds.Register(cmd.Name, commands.HandlerUsers)
 	case "agg":
 		cmds.Register(cmd.Name, commands.HandlerAgg)
+	case "addfeed":
+		cmds.Register(cmd.Name, commands.HandlerAddFeed)
 	}
 
 	if err := cmds.Run(state, cmd); err != nil {
