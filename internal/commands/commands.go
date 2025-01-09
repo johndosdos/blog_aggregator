@@ -151,3 +151,54 @@ func HandlerAgg(s *State, cmd Command) error {
 
 	return nil
 }
+
+func HandlerAddFeed(s *State, cmd Command) error {
+	switch len(cmd.Args) {
+	case 0:
+		return fmt.Errorf("missing feed name and URL.")
+	case 1:
+		return fmt.Errorf("missing feed URL.")
+	}
+
+	// the addfeed command accepts two arguments, feed name and feed URL
+	feedName := cmd.Args[0]
+	feedURL := cmd.Args[1]
+
+	// get the current user from the database
+	dbUser, err := s.DB.GetUser(context.Background(), s.Config.CurrentUserName)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			return fmt.Errorf("user not found: %w.", err)
+		}
+		return err
+	}
+
+	dbFeed, err := s.DB.CreateFeed(
+		context.Background(),
+		database.CreateFeedParams{
+			ID:        uuid.New(),
+			CreatedAt: time.Now().UTC(),
+			UpdatedAt: time.Now().UTC(),
+			Name:      feedName,
+			Url:       feedURL,
+			UserID:    dbUser.ID,
+		},
+	)
+	if err != nil {
+		return fmt.Errorf("failed to create feed: %w.", err)
+	}
+
+	fmt.Println("feed has been added.")
+	fmt.Printf(`
+	{
+	ID: %s
+	Created At: %s
+	Updated At: %s
+	Name: %s
+	URL: %s
+	UserID: %s	
+	}
+	`, dbFeed.ID, dbFeed.CreatedAt, dbFeed.UpdatedAt, dbFeed.Name, dbFeed.Url, dbFeed.UserID)
+
+	return nil
+}
