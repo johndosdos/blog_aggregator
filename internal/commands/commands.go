@@ -112,7 +112,13 @@ func HandlerReset(s *State, cmd Command) error {
 		return fmt.Errorf("failed to delete users: %w", err)
 	}
 
+	err = s.DB.DeleteFeeds(context.Background())
+	if err != nil {
+		return fmt.Errorf("failed to delete feeds: %w", err)
+	}
+
 	fmt.Println("users deletion success!")
+	fmt.Println("feeds deletion success!")
 	return nil
 }
 
