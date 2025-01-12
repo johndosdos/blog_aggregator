@@ -267,3 +267,26 @@ func HandlerFollow(s *State, cmd Command) error {
 	return nil
 }
 
+func HandlerFollowing(s *State, cmd Command) error {
+	// this function does not accept any arguments
+	// print all feeds the current user is following
+
+	user, err := s.DB.GetUser(context.Background(), s.Config.CurrentUserName)
+	if err != nil {
+		return fmt.Errorf("failed to get user: %w", err)
+	}
+
+	userFeeds, err := s.DB.GetFeedFollowsForUser(context.Background(), user.Name)
+	if err != nil {
+		return fmt.Errorf("failed to get user feeds: %w", err)
+	}
+
+	fmt.Printf("User: %s\n", user.Name)
+	fmt.Println("Feeds: {")
+	for _, record := range userFeeds {
+		fmt.Printf("\t%v,\n", record.Name_2)
+	}
+	fmt.Println("}")
+
+	return nil
+}
