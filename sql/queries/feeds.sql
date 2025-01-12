@@ -10,5 +10,8 @@ SELECT
 FROM feeds
 JOIN users ON feeds.user_id = users.id;
 
+-- name: GetFeedByUrl :one
+SELECT * FROM feeds WHERE url = $1;
+
 -- name: DeleteFeeds :exec
 DELETE FROM feeds;
