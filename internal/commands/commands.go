@@ -220,6 +220,7 @@ func HandlerAddFeed(s *State, cmd Command) error {
 
 func HandlerFeeds(s *State, cmd Command) error {
 	// this function does not accept any arguments
+	// print all feeds in the feeds table
 
 	dbFeeds, err := s.DB.GetFeeds(context.Background())
 	if err != nil {
