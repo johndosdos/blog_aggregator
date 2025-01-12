@@ -107,18 +107,27 @@ func HandlerRegister(s *State, cmd Command) error {
 }
 
 func HandlerReset(s *State, cmd Command) error {
+	// reset users table
 	err := s.DB.DeleteUsers(context.Background())
 	if err != nil {
 		return fmt.Errorf("failed to delete users: %w", err)
 	}
 
+	// reset feeds table
 	err = s.DB.DeleteFeeds(context.Background())
 	if err != nil {
 		return fmt.Errorf("failed to delete feeds: %w", err)
 	}
 
+	// reset users feed follows table
+	err = s.DB.DeleteUsersFeedFollows(context.Background())
+	if err != nil {
+		return fmt.Errorf("failed to delete users feed subscriptions: %w", err)
+	}
+
 	fmt.Println("users deletion success!")
 	fmt.Println("feeds deletion success!")
+	fmt.Println("users feed subscriptions deletion success!")
 	return nil
 }
 
