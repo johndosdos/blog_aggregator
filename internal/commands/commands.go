@@ -232,3 +232,38 @@ func HandlerFeeds(s *State, cmd Command) error {
 
 	return nil
 }
+
+func HandlerFollow(s *State, cmd Command) error {
+	if len(cmd.Args) == 0 {
+		return fmt.Errorf("missing feed URL.")
+	}
+
+	feedUrl := cmd.Args[0]
+
+	feed, err := s.DB.GetFeedByUrl(context.Background(), feedUrl)
+	if err != nil {
+		return fmt.Errorf("failed to get feed: %w", err)
+	}
+
+	user, err := s.DB.GetUser(context.Background(), s.Config.CurrentUserName)
+	if err != nil {
+		return fmt.Errorf("failed to get user: %w", err)
+	}
+
+	// return a record of the feed the user recently followed
+	feedFollowRecord, err := s.DB.CreateFeedFollow(context.Background(), database.CreateFeedFollowParams{
+		ID:        uuid.New(),
+		CreatedAt: time.Now().UTC(),
+		UpdatedAt: time.Now().UTC(),
+		UserID:    user.ID,
+		FeedID:    feed.ID,
+	})
+	if err != nil {
+		return fmt.Errorf("failed to follow feed: %w", err)
+	}
+
+	fmt.Printf("{Feed name: %v, User: %v}\n", feedFollowRecord.Name_2, feedFollowRecord.Name)
+
+	return nil
+}
+
