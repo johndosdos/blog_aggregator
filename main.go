@@ -68,6 +68,10 @@ func main() {
 		cmds.Register(cmd.Name, commands.HandlerAddFeed)
 	case "feeds":
 		cmds.Register(cmd.Name, commands.HandlerFeeds)
+	case "follow":
+		cmds.Register(cmd.Name, commands.HandlerFollow)
+	case "following":
+		cmds.Register(cmd.Name, commands.HandlerFollowing)
 	}
 
 	if err := cmds.Run(state, cmd); err != nil {
