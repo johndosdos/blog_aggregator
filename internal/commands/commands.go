@@ -180,7 +180,7 @@ func HandlerAddFeed(s *State, cmd Command) error {
 	feedURL := cmd.Args[1]
 
 	// get the current user from the database
-	dbUser, err := s.DB.GetUser(context.Background(), s.Config.CurrentUserName)
+	user, err := s.DB.GetUser(context.Background(), s.Config.CurrentUserName)
 	if err != nil {
 		if err == sql.ErrNoRows {
 			return fmt.Errorf("user not found: %w.", err)
@@ -188,7 +188,7 @@ func HandlerAddFeed(s *State, cmd Command) error {
 		return err
 	}
 
-	dbFeed, err := s.DB.CreateFeed(
+	feed, err := s.DB.CreateFeed(
 		context.Background(),
 		database.CreateFeedParams{
 			ID:        uuid.New(),
@@ -196,14 +196,27 @@ func HandlerAddFeed(s *State, cmd Command) error {
 			UpdatedAt: time.Now().UTC(),
 			Name:      feedName,
 			Url:       feedURL,
-			UserID:    dbUser.ID,
+			UserID:    user.ID,
 		},
 	)
 	if err != nil {
 		return fmt.Errorf("failed to create feed: %w.", err)
 	}
 
+	// return a record of the feed the user recently followed
+	_, err = s.DB.CreateFeedFollow(context.Background(), database.CreateFeedFollowParams{
+		ID:        uuid.New(),
+		CreatedAt: time.Now().UTC(),
+		UpdatedAt: time.Now().UTC(),
+		UserID:    user.ID,
+		FeedID:    feed.ID,
+	})
+	if err != nil {
+		return fmt.Errorf("failed to follow feed: %w", err)
+	}
+
 	fmt.Println("feed has been added.")
+
 	fmt.Printf(`
 	{
 	ID: %s
@@ -213,7 +226,7 @@ func HandlerAddFeed(s *State, cmd Command) error {
 	URL: %s
 	UserID: %s	
 	}
-	`, dbFeed.ID, dbFeed.CreatedAt, dbFeed.UpdatedAt, dbFeed.Name, dbFeed.Url, dbFeed.UserID)
+	`, feed.ID, feed.CreatedAt, feed.UpdatedAt, feed.Name, feed.Url, feed.UserID)
 
 	return nil
 }
