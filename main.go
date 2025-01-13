@@ -72,6 +72,8 @@ func main() {
 		cmds.Register(cmd.Name, commands.MiddlewareLoggedIn(commands.HandlerFollow))
 	case "following":
 		cmds.Register(cmd.Name, commands.MiddlewareLoggedIn(commands.HandlerFollowing))
+	case "unfollow":
+		cmds.Register(cmd.Name, commands.MiddlewareLoggedIn(commands.HandlerUnfollow))
 	}
 
 	if err := cmds.Run(state, cmd); err != nil {
