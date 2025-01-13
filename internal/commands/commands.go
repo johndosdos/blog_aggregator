@@ -287,12 +287,20 @@ func HandlerFollowing(s *State, cmd Command, user database.User) error {
 		return fmt.Errorf("failed to get user feeds: %w", err)
 	}
 
-	fmt.Printf("User: %s\n", user.Name)
-	fmt.Println("Feeds: {")
-	for _, record := range userFeeds {
-		fmt.Printf("\t%v,\n", record.Name_2)
+	if len(userFeeds) == 0 {
+		fmt.Println("Feeds: {}")
+	} else {
+		fmt.Printf("User: %s\n", user.Name)
+		fmt.Println("Feeds: {")
+		for _, record := range userFeeds {
+			fmt.Printf("\t%v,\n", record.Name_2)
+		}
+		fmt.Println("}")
 	}
-	fmt.Println("}")
+
+	return nil
+}
+
 
 	return nil
 }
