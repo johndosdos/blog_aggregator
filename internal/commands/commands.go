@@ -41,6 +41,17 @@ func (c *Commands) Run(s *State, cmd Command) error {
 	}
 }
 
+func MiddlewareLoggedIn(handler func(s *State, cmd Command, user database.User) error) func(s *State, cmd Command) error {
+	return func(s *State, cmd Command) error {
+		user, err := s.DB.GetUser(context.Background(), s.Config.CurrentUserName)
+		if err != nil {
+			return fmt.Errorf("failed to get user: %w", err)
+		}
+
+		return handler(s, cmd, user)
+	}
+}
+
 func HandlerLogin(s *State, cmd Command) error {
 	// cmd.Args is the username
 	if len(cmd.Args) == 0 {
@@ -167,7 +178,7 @@ func HandlerAgg(s *State, cmd Command) error {
 	return nil
 }
 
-func HandlerAddFeed(s *State, cmd Command) error {
+func HandlerAddFeed(s *State, cmd Command, user database.User) error {
 	switch len(cmd.Args) {
 	case 0:
 		return fmt.Errorf("missing feed name and URL.")
@@ -178,15 +189,6 @@ func HandlerAddFeed(s *State, cmd Command) error {
 	// the addfeed command accepts two arguments, feed name and feed URL
 	feedName := cmd.Args[0]
 	feedURL := cmd.Args[1]
-
-	// get the current user from the database
-	user, err := s.DB.GetUser(context.Background(), s.Config.CurrentUserName)
-	if err != nil {
-		if err == sql.ErrNoRows {
-			return fmt.Errorf("user not found: %w.", err)
-		}
-		return err
-	}
 
 	feed, err := s.DB.CreateFeed(
 		context.Background(),
@@ -247,7 +249,7 @@ func HandlerFeeds(s *State, cmd Command) error {
 	return nil
 }
 
-func HandlerFollow(s *State, cmd Command) error {
+func HandlerFollow(s *State, cmd Command, user database.User) error {
 	if len(cmd.Args) == 0 {
 		return fmt.Errorf("missing feed URL.")
 	}
@@ -257,11 +259,6 @@ func HandlerFollow(s *State, cmd Command) error {
 	feed, err := s.DB.GetFeedByUrl(context.Background(), feedUrl)
 	if err != nil {
 		return fmt.Errorf("failed to get feed: %w", err)
-	}
-
-	user, err := s.DB.GetUser(context.Background(), s.Config.CurrentUserName)
-	if err != nil {
-		return fmt.Errorf("failed to get user: %w", err)
 	}
 
 	// return a record of the feed the user recently followed
@@ -281,14 +278,9 @@ func HandlerFollow(s *State, cmd Command) error {
 	return nil
 }
 
-func HandlerFollowing(s *State, cmd Command) error {
+func HandlerFollowing(s *State, cmd Command, user database.User) error {
 	// this function does not accept any arguments
 	// print all feeds the current user is following
-
-	user, err := s.DB.GetUser(context.Background(), s.Config.CurrentUserName)
-	if err != nil {
-		return fmt.Errorf("failed to get user: %w", err)
-	}
 
 	userFeeds, err := s.DB.GetFeedFollowsForUser(context.Background(), user.Name)
 	if err != nil {
