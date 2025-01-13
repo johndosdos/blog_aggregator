@@ -64,14 +64,14 @@ func main() {
 		cmds.Register(cmd.Name, commands.HandlerUsers)
 	case "agg":
 		cmds.Register(cmd.Name, commands.HandlerAgg)
-	case "addfeed":
-		cmds.Register(cmd.Name, commands.HandlerAddFeed)
 	case "feeds":
 		cmds.Register(cmd.Name, commands.HandlerFeeds)
+	case "addfeed":
+		cmds.Register(cmd.Name, commands.MiddlewareLoggedIn(commands.HandlerAddFeed))
 	case "follow":
-		cmds.Register(cmd.Name, commands.HandlerFollow)
+		cmds.Register(cmd.Name, commands.MiddlewareLoggedIn(commands.HandlerFollow))
 	case "following":
-		cmds.Register(cmd.Name, commands.HandlerFollowing)
+		cmds.Register(cmd.Name, commands.MiddlewareLoggedIn(commands.HandlerFollowing))
 	}
 
 	if err := cmds.Run(state, cmd); err != nil {
